@@ -3,6 +3,7 @@ package net.gtaun.shoebill.fcnpc.event;
 import net.gtaun.shoebill.constant.WeaponModel;
 import net.gtaun.shoebill.fcnpc.FCNPC;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.util.event.Interruptable;
 
 /**
  * Created by marvin on 16.01.16.
@@ -14,6 +15,8 @@ public class FCNPCTakeDamageEvent extends FCNPCEvent {
     private WeaponModel weapon;
     private int bodyPart;
     private float amount;
+
+    private int retval = 1;
 
     public FCNPCTakeDamageEvent(FCNPC npc, Player damager, WeaponModel weapon, int bodyPart, float amount) {
         super(npc);
@@ -37,5 +40,13 @@ public class FCNPCTakeDamageEvent extends FCNPCEvent {
 
     public float getAmount() {
         return amount;
+    }
+
+    public void disallow() {
+        this.retval |= 0;
+    }
+
+    public int getReturnValue() {
+        return retval;
     }
 }

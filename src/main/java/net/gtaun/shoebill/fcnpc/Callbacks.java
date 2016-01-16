@@ -1,6 +1,11 @@
 package net.gtaun.shoebill.fcnpc;
 
 import net.gtaun.shoebill.amx.AmxInstanceManager;
+import net.gtaun.shoebill.constant.WeaponModel;
+import net.gtaun.shoebill.fcnpc.event.*;
+import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.util.event.EventManager;
 
 /**
  * Created by marvin on 16.01.16.
@@ -9,48 +14,61 @@ import net.gtaun.shoebill.amx.AmxInstanceManager;
 class Callbacks {
 
     static void registerHandlers(AmxInstanceManager instanceManager) {
+        Wrapper wrapper = Wrapper.getInstance();
+        EventManager eventManager = wrapper.getEventManager();
         instanceManager.hookCallback("FCNPC_OnCreate", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnCreate here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCCreateEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnSpawn", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnSpawn here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCSpawnEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnRespawn", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnRespawn here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCRespawnEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnDeath", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
             int killerid = (int) amxCallEvent.getParameters()[1];
             int weaponid = (int) amxCallEvent.getParameters()[2];
-            //TODO: Add your event logic for FCNPC_OnDeath here
+            FCNPC npc = FCNPC.get(npcid);
+            Player killer = Player.get(killerid);
+            WeaponModel weapon = WeaponModel.get(weaponid);
+            eventManager.dispatchEvent(new FCNPCDeathEvent(npc, killer, weapon), npc, killer, weapon);
         }, "iii");
 
         instanceManager.hookCallback("FCNPC_OnVehicleEntryComplete", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
             int vehicleid = (int) amxCallEvent.getParameters()[1];
             int seat = (int) amxCallEvent.getParameters()[2];
-            //TODO: Add your event logic for FCNPC_OnVehicleEntryComplete here
+            FCNPC npc = FCNPC.get(npcid);
+            Vehicle vehicle = Vehicle.get(vehicleid);
+            eventManager.dispatchEvent(new FCNPCVehicleEntryCompleteEvent(npc, vehicle, seat), npc, vehicle, seat);
         }, "iii");
 
         instanceManager.hookCallback("FCNPC_OnVehicleExitComplete", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnVehicleExitComplete here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCVehicleExitCompleteEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnReachDestination", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnReachDestination here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCReachDestinationEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnFinishPlayback", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnFinishPlayback here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCFinishPlaybackEvent(npc), npc);
         }, "i");
 
         instanceManager.hookCallback("FCNPC_OnTakeDamage", amxCallEvent -> {
@@ -59,24 +77,34 @@ class Callbacks {
             int weaponid = (int) amxCallEvent.getParameters()[2];
             int bodypart = (int) amxCallEvent.getParameters()[3];
             float health_loss = (float) amxCallEvent.getParameters()[4];
-            //TODO: Add your event logic for FCNPC_OnTakeDamage here
+            FCNPC npc = FCNPC.get(npcid);
+            Player damager = Player.get(damagerid);
+            WeaponModel weaponModel = WeaponModel.get(weaponid);
+            FCNPCTakeDamageEvent event = new FCNPCTakeDamageEvent(npc, damager, weaponModel, bodypart, health_loss);
+            eventManager.dispatchEvent(event, npc, damager, weaponid, bodypart);
+            amxCallEvent.setReturnValue(event.getReturnValue());
         }, "iiiif");
 
         instanceManager.hookCallback("FCNPC_OnFinishNodePoint", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
             int point = (int) amxCallEvent.getParameters()[1];
-            //TODO: Add your event logic for FCNPC_OnFinishNodePoint here
+            FCNPC npc = FCNPC.get(npcid);
+            FCNPCFinishNodePointEvent event = new FCNPCFinishNodePointEvent(npc, point);
+            eventManager.dispatchEvent(event, npc, point);
+            amxCallEvent.setReturnValue(event.getReturnValue());
         }, "ii");
 
         instanceManager.hookCallback("FCNPC_OnChangeNode", amxCallEvent -> {
             int playerid = (int) amxCallEvent.getParameters()[0];
             int nodeid = (int) amxCallEvent.getParameters()[1];
-            //TODO: Add your event logic for FCNPC_OnChangeNode here
+            Player player = Player.get(playerid);
+            eventManager.dispatchEvent(new FCNPCChangeNodeEvent(player, nodeid), player, nodeid);
         }, "ii");
 
         instanceManager.hookCallback("FCNPC_OnFinishNode", amxCallEvent -> {
             int npcid = (int) amxCallEvent.getParameters()[0];
-            //TODO: Add your event logic for FCNPC_OnFinishNode here
+            FCNPC npc = FCNPC.get(npcid);
+            eventManager.dispatchEvent(new FCNPCFinishNodeEvent(npc), npc);
         }, "i");
 
     }

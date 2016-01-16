@@ -10,6 +10,8 @@ public class FCNPCFinishNodePointEvent extends FCNPCEvent {
 
     private int point;
 
+    private int retval;
+
     public FCNPCFinishNodePointEvent(FCNPC npc, int point) {
         super(npc);
         this.point = point;
@@ -17,5 +19,13 @@ public class FCNPCFinishNodePointEvent extends FCNPCEvent {
 
     public int getPoint() {
         return point;
+    }
+
+    public void disallow() {
+        this.retval |= 0;
+    }
+
+    public int getReturnValue() {
+        return retval;
     }
 }

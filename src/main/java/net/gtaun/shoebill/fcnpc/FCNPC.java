@@ -1,5 +1,6 @@
 package net.gtaun.shoebill.fcnpc;
 
+import com.sun.javafx.UnmodifiableArrayList;
 import net.gtaun.shoebill.amx.types.ReferenceFloat;
 import net.gtaun.shoebill.amx.types.ReferenceInt;
 import net.gtaun.shoebill.constant.SkinModel;
@@ -13,6 +14,9 @@ import net.gtaun.shoebill.fcnpc.data.Keys;
 import net.gtaun.shoebill.fcnpc.constant.MoveType;
 import net.gtaun.shoebill.object.Destroyable;
 import net.gtaun.shoebill.object.Vehicle;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by marvin on 16.01.16.
@@ -29,6 +33,14 @@ public class FCNPC implements Destroyable {
         FCNPC npc = new FCNPC(id, name);
         Wrapper.getInstance().addNpc(npc);
         return npc;
+    }
+
+    public static FCNPC get(int id) {
+        return Wrapper.getInstance().getNpcs().stream().filter(fcnpc -> fcnpc.getId() == id).findFirst().orElse(null);
+    }
+
+    public static Collection<FCNPC> get() {
+        return new ArrayList<>(Wrapper.getInstance().getNpcs());
     }
 
     private FCNPC(int id, String name) {
@@ -270,6 +282,7 @@ public class FCNPC implements Destroyable {
 
         Functions.FCNPC_Destroy(id);
         id = Wrapper.INVALID_ENTITY_ID;
+        Wrapper.getInstance().removeNpc(this);
     }
 
     @Override

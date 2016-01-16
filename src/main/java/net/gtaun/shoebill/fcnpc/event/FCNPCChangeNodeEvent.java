@@ -11,7 +11,7 @@ public class FCNPCChangeNodeEvent extends PlayerEvent {
 
     private int node;
 
-    protected FCNPCChangeNodeEvent(Player player, int node) {
+    public FCNPCChangeNodeEvent(Player player, int node) {
         super(player);
         this.node = node;
     }

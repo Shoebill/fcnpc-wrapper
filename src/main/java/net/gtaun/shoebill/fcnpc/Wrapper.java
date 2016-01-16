@@ -110,4 +110,8 @@ public class Wrapper extends Plugin {
         Functions.FCNPC_GetZGround(x, y, z);
         return z.getValue();
     }
+
+    public List<FCNPC> getNpcs() {
+        return npcs;
+    }
 }
