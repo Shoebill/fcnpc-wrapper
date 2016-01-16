@@ -5,8 +5,12 @@ import net.gtaun.shoebill.amx.AmxInstance;
 import net.gtaun.shoebill.amx.types.ReferenceFloat;
 import net.gtaun.shoebill.amx.types.ReferenceInt;
 import net.gtaun.shoebill.amx.types.ReturnType;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by marvin on 16.01.16.
@@ -16,7 +20,7 @@ class Functions {
 
     private static HashMap<String, AmxCallable> functions = new HashMap<>();
 
-    static void registerFunctions(AmxInstance instance) {
+    static void registerFunctions(AmxInstance instance) throws Exception {
         functions.put("FCNPC_SetUpdateRate", instance.getNative("FCNPC_SetUpdateRate", ReturnType.INTEGER));
         functions.put("FCNPC_InitZMap", instance.getNative("FCNPC_InitZMap", ReturnType.INTEGER));
         functions.put("FCNPC_Create", instance.getNative("FCNPC_Create", ReturnType.INTEGER));
@@ -83,6 +87,22 @@ class Functions {
         functions.put("FCNPC_PlayNode", instance.getNative("FCNPC_PlayNode", ReturnType.INTEGER));
         functions.put("FCNPC_StopPlayingNode", instance.getNative("FCNPC_StopPlayingNode", ReturnType.INTEGER));
         functions.put("FCNPC_GetZGround", instance.getNative("FCNPC_GetZGround", ReturnType.INTEGER));
+
+        checkForNullPointers();
+    }
+
+    private static void checkForNullPointers() throws Exception {
+        final List<Map.Entry<String, AmxCallable>> nullpointers = functions.entrySet().stream()
+                .filter(stringAmxCallableEntry -> stringAmxCallableEntry.getValue() == null)
+                .collect(Collectors.toList());
+        Logger logger = Wrapper.getInstance().getLogger();
+        if(nullpointers.size() > 0) {
+            logger.error("Shoebill could not find all functions from FCNPC:");
+            for(Map.Entry<String, AmxCallable> nullpointer : nullpointers) {
+                logger.error(" - " + nullpointer.getKey());
+            }
+            throw new Exception("Not all FCNPC Functions have been found.");
+        } else logger.info("All functions have been found successfully.");
     }
 
     static int FCNPC_SetUpdateRate(int rate) {

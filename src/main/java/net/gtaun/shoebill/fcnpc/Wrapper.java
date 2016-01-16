@@ -30,7 +30,6 @@ public class Wrapper extends Plugin {
     public static final int INVALID_ENTITY_ID = 0xFFFF;
 
     private Logger logger;
-    private EventManager eventManager;
 
     private List<FCNPC> npcs;
 
@@ -38,15 +37,18 @@ public class Wrapper extends Plugin {
     protected void onEnable() throws Throwable {
         instance = this;
         logger = getLogger();
-        eventManager = getEventManager();
+        logger.info("Registering callback hooks...");
         Callbacks.registerHandlers(AmxInstanceManager.get());
+        logger.info("Looking for native functions...");
         Functions.registerFunctions(AmxInstance.getDefault());
 
         npcs = new ArrayList<>();
+        logger.info("FCNPC-Wrapper has been loaded successfully.");
     }
 
     @Override
     protected void onDisable() throws Throwable {
+        logger.info("FCNPC-Wrapper is shutting down...");
         Callbacks.unregisterHandlers(AmxInstanceManager.get());
 
         npcs.stream().filter(fcnpc -> !fcnpc.isDestroyed()).collect(Collectors.toList()).forEach(FCNPC::destroy);

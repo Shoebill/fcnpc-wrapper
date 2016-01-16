@@ -143,7 +143,7 @@ public class FCNPC implements Destroyable {
     }
 
     public float getArmour() {
-        return Functions.FCNPC_GetAmmo(id);
+        return Functions.FCNPC_GetArmour(id);
     }
 
     public void setWeapon(WeaponModel weaponModel) {
