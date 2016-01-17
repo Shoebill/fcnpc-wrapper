@@ -1,17 +1,18 @@
 package net.gtaun.shoebill.fcnpc;
 
-import com.sun.javafx.UnmodifiableArrayList;
+import net.gtaun.shoebill.SampNativeFunction;
 import net.gtaun.shoebill.amx.types.ReferenceFloat;
 import net.gtaun.shoebill.amx.types.ReferenceInt;
 import net.gtaun.shoebill.constant.SkinModel;
 import net.gtaun.shoebill.constant.SpecialAction;
 import net.gtaun.shoebill.constant.WeaponModel;
+import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.exception.CreationFailedException;
-import net.gtaun.shoebill.fcnpc.data.Keys;
 import net.gtaun.shoebill.fcnpc.constant.MoveType;
+import net.gtaun.shoebill.fcnpc.data.Keys;
 import net.gtaun.shoebill.object.Destroyable;
 import net.gtaun.shoebill.object.Vehicle;
 
@@ -27,6 +28,11 @@ public class FCNPC implements Destroyable {
     private int id;
     private String name;
 
+    private FCNPC(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public static FCNPC create(String name) {
         int id = Functions.FCNPC_Create(name);
         if(id == Wrapper.INVALID_ENTITY_ID) throw new CreationFailedException("FCNPC_Create() returned an invalid entity id.");
@@ -41,11 +47,6 @@ public class FCNPC implements Destroyable {
 
     public static Collection<FCNPC> get() {
         return new ArrayList<>(Wrapper.getInstance().getNpcs());
-    }
-
-    private FCNPC(int id, String name) {
-        this.id = id;
-        this.name = name;
     }
 
     public int getId() {
@@ -84,26 +85,22 @@ public class FCNPC implements Destroyable {
         return Functions.FCNPC_IsDead(id) > 0;
     }
 
-    public void setPosition(Vector3D position) {
-        Functions.FCNPC_SetPosition(id, position.x, position.y, position.z);
-    }
-
     public Vector3D getPosition() {
         ReferenceFloat x = new ReferenceFloat(0f), y = new ReferenceFloat(0f), z = new ReferenceFloat(0f);
         Functions.FCNPC_GetPosition(id, x, y, z);
         return new Vector3D(x.getValue(), y.getValue(), z.getValue());
     }
 
-    public void setAngle(float angle) {
-        Functions.FCNPC_SetAngle(id, angle);
+    public void setPosition(Vector3D position) {
+        Functions.FCNPC_SetPosition(id, position.x, position.y, position.z);
     }
 
     public float getAngle() {
         return Functions.FCNPC_GetAngle(id);
     }
 
-    public void setQuaternion(Quaternion quaternion) {
-        Functions.FCNPC_SetQuaternion(id, quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+    public void setAngle(float angle) {
+        Functions.FCNPC_SetAngle(id, angle);
     }
 
     public Quaternion getQuaternion() {
@@ -112,8 +109,8 @@ public class FCNPC implements Destroyable {
         return new Quaternion(x.getValue(), y.getValue(), z.getValue(), w.getValue());
     }
 
-    public void setVelocity(Velocity velocity) {
-        Functions.FCNPC_SetVelocity(id, velocity.x, velocity.y, velocity.z);
+    public void setQuaternion(Quaternion quaternion) {
+        Functions.FCNPC_SetQuaternion(id, quaternion.x, quaternion.y, quaternion.z, quaternion.w);
     }
 
     public Velocity getVelocity() {
@@ -122,48 +119,70 @@ public class FCNPC implements Destroyable {
         return new Velocity(x.getValue(), y.getValue(), z.getValue());
     }
 
-    public void setInterior(int interior) {
-        Functions.FCNPC_SetInterior(id, interior);
+    public void setVelocity(Velocity velocity) {
+        Functions.FCNPC_SetVelocity(id, velocity.x, velocity.y, velocity.z);
     }
 
     public int getInterior() {
         return Functions.FCNPC_GetInterior(id);
     }
 
-    public void setHealth(float health) {
-        Functions.FCNPC_SetHealth(id, health);
+    public void setInterior(int interior) {
+        Functions.FCNPC_SetInterior(id, interior);
+    }
+
+    public int getWorld() {
+        return SampNativeFunction.getPlayerVirtualWorld(id);
+    }
+
+    public void setWorld(int worldId) {
+        SampNativeFunction.setPlayerVirtualWorld(id, worldId);
+    }
+
+    public AngledLocation getLocation() {
+        Vector3D position = getPosition();
+        float angle = getAngle();
+        int worldId = getWorld(), interiorId = getInterior();
+        return new AngledLocation(position, interiorId, worldId, angle);
+    }
+
+    public void setLocation(AngledLocation location) {
+        setPosition(new Vector3D(location.x, location.y, location.z));
+        setAngle(location.angle);
+        setInterior(location.interiorId);
+        setWorld(location.worldId);
     }
 
     public float getHealth() {
         return Functions.FCNPC_GetHealth(id);
     }
 
-    public void setArmour(int armour) {
-        Functions.FCNPC_SetArmour(id, armour);
+    public void setHealth(float health) {
+        Functions.FCNPC_SetHealth(id, health);
     }
 
     public float getArmour() {
         return Functions.FCNPC_GetArmour(id);
     }
 
-    public void setWeapon(WeaponModel weaponModel) {
-        Functions.FCNPC_SetWeapon(id, weaponModel.getId());
+    public void setArmour(int armour) {
+        Functions.FCNPC_SetArmour(id, armour);
     }
 
     public WeaponModel getWeapon() {
         return WeaponModel.get(Functions.FCNPC_GetWeapon(id));
     }
 
-    public void setAmmo(int amount) {
-        Functions.FCNPC_SetAmmo(id, amount);
+    public void setWeapon(WeaponModel weaponModel) {
+        Functions.FCNPC_SetWeapon(id, weaponModel.getId());
     }
 
     public int getAmmo() {
         return Functions.FCNPC_GetAmmo(id);
     }
 
-    public void setKeys(int keys) {
-        Functions.FCNPC_SetKeys(id, keys);
+    public void setAmmo(int amount) {
+        Functions.FCNPC_SetAmmo(id, amount);
     }
 
     public Keys getKeys() {
@@ -172,12 +191,16 @@ public class FCNPC implements Destroyable {
         return new Keys(udAnalog.getValue(), lrAnalog.getValue(), keys.getValue());
     }
 
-    public void setSpecialAction(SpecialAction specialAction) {
-        Functions.FCNPC_SetSpecialAction(id, specialAction.getValue());
+    public void setKeys(int keys) {
+        Functions.FCNPC_SetKeys(id, keys);
     }
 
     public SpecialAction getSpecialAction() {
         return SpecialAction.get(Functions.FCNPC_GetSpecialAction(id));
+    }
+
+    public void setSpecialAction(SpecialAction specialAction) {
+        Functions.FCNPC_SetSpecialAction(id, specialAction.getValue());
     }
 
     public void toggleReloading(boolean toggle) {
