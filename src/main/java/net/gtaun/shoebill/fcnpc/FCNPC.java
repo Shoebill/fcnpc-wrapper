@@ -45,6 +45,10 @@ public class FCNPC implements Destroyable {
         return Wrapper.getInstance().getNpcs().stream().filter(fcnpc -> fcnpc.getId() == id).findFirst().orElse(null);
     }
 
+    public static FCNPC get(String name) {
+        return Wrapper.getInstance().getNpcs().stream().filter(fcnpc -> fcnpc.getName().equals(name)).findFirst().orElse(null);
+    }
+
     public static Collection<FCNPC> get() {
         return new ArrayList<>(Wrapper.getInstance().getNpcs());
     }
